@@ -120,8 +120,6 @@ services:
         condition: service_healthy
       postiz-redis:
         condition: service_healthy
-      temporal:
-        condition: service_healthy
 
   postiz-postgres:
     image: postgres:17-alpine
@@ -215,10 +213,8 @@ services:
       - '7233:7233'
     image: temporalio/auto-setup:1.28.1
     depends_on:
-      temporal-postgresql:
-        condition: service_healthy
-      temporal-elasticsearch:
-        condition: service_healthy
+      - temporal-postgresql
+      - temporal-elasticsearch
     environment:
       - DB=postgres12
       - DB_PORT=5432
@@ -236,12 +232,6 @@ services:
       - ./dynamicconfig:/etc/temporal/config/dynamicconfig
     labels:
       kompose.volume.type: configMap
-    healthcheck:
-      test: ["CMD-SHELL", "tctl --address 127.0.0.1:7233 cluster health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-      start_period: 20s
 
   temporal-admin-tools:
     container_name: temporal-admin-tools
